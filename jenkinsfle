@@ -1,0 +1,124 @@
+pipeline {
+    agent any
+
+    environment {
+        PROJECT_DIR = '/home/meriam/meriam-hfaidhia-4DS4-mlops_project'
+        MODEL_PATH = "${PROJECT_DIR}/prediction_model.joblib"
+    }
+
+    stages {
+        stage('Preparation') {
+            steps {
+                script {
+                    echo "🔄 Installation des dépendances..."
+                    sh """
+                        set -e
+                        cd ${env.PROJECT_DIR}
+                        python3 -m venv venv
+                        . venv/bin/activate
+                        pip install -r requierements.txt
+                    """
+                }
+            }
+        }
+
+        stage('Code Linting') {
+            steps {
+                script {
+                    echo "🔍 Vérification du style de code avec Flake8..."
+                    sh """
+                        set -e
+                        cd ${env.PROJECT_DIR}
+                        . venv/bin/activate
+                        flake8 main.py model_pipeline.py --count --show-source --statistics
+                    """
+                }
+            }
+        }
+
+        stage('Train Model') {
+            steps {
+                script {
+                    echo "🚀 Entraînement du modèle..."
+                    sh """
+                        set -e
+                        cd ${env.PROJECT_DIR}
+                        . venv/bin/activate
+                        python3 main.py --train --train_path churn-bigml-20.csv --test_path churn-bigml-80.csv
+                    """
+                }
+            }
+        }
+
+        stage('Evaluate Model') {
+            steps {
+                script {
+                    echo "📊 Évaluation du modèle..."
+                    sh """
+                        set -e
+                        cd ${env.PROJECT_DIR}
+                        . venv/bin/activate
+                        python3 main.py --evaluate --train_path churn-bigml-20.csv --test_path churn-bigml-80.csv
+                    """
+                }
+            }
+        }
+
+        stage('Save Model') {
+            steps {
+                script {
+                    echo "💾 Sauvegarde du modèle..."
+                    sh """
+                        set -e
+                        cd ${env.PROJECT_DIR}
+                        . venv/bin/activate
+                        python3 main.py --save prediction_model.joblib --train_path churn-bigml-20.csv --test_path churn-bigml-80.csv
+                    """
+                }
+            }
+        }
+
+        stage('Deploy API') {
+            steps {
+                script {
+                    echo "🚀 Lancement de l'API FastAPI..."
+                    sh "bash ${env.PROJECT_DIR}/start_api.sh"
+                }
+            }
+        }
+
+        stage('Test API') {
+            steps {
+                script {
+                    echo "✔️ Test de l'API via Swagger..."
+                    sh """
+                        set -e
+                        curl --retry 10 --retry-delay 5 --fail http://192.168.93.6:8000/docs
+                    """
+                }
+            }
+        }
+
+        stage('Stop API') {
+            steps {
+                script {
+                    echo "🛑 Arrêt de l'API FastAPI..."
+                    sh "bash ${env.PROJECT_DIR}/stop_api.sh"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "🔧 Nettoyage ou actions post-exécution"
+        }
+        success {
+            echo "✅ Pipeline exécuté avec succès!"
+        }
+        failure {
+            echo "❌ Pipeline échoué."
+        }
+    }
+}
+
