@@ -11,8 +11,16 @@ pipeline {
             steps {
                 script {
                     echo "📥 Clonage du dépôt..."
-                    sh "git config --global http.postBuffer 524288000"
-                    sh "git clone https://github.com/meriamhfaidhia/mlops_project.git ${PROJECT_DIR}"
+                    sh "git config --global http.postBuffer 1048576000"  // 1 GB
+                    sh """
+                        set +e
+                        for i in {1..5}; do
+                            git clone https://github.com/meriamhfaidhia/mlops_project.git ${PROJECT_DIR} && break
+                            echo "Attempt $i failed. Retrying in 5 seconds..."
+                            sleep 5
+                        done
+                        set -e
+                    """
                 }
             }
         }
@@ -147,4 +155,3 @@ pipeline {
         }
     }
 }
-
