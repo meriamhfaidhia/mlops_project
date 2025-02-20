@@ -2,21 +2,30 @@ pipeline {
     agent any
 
     environment {
-        PROJECT_DIR = '/home/meriam/meriam-hfaidhia-4DS4-mlops_project'
+        PROJECT_DIR = "${WORKSPACE}"  // Utilisation du workspace Jenkins
         MODEL_PATH = "${PROJECT_DIR}/prediction_model.joblib"
     }
 
     stages {
-        stage('Preparation') {
+        stage('Clone Repository') {
+            steps {
+                script {
+                    echo "📥 Clonage du dépôt..."
+                    sh "git clone https://github.com/meriamhfaidhia/mlops_project.git ${PROJECT_DIR}"
+                }
+            }
+        }
+
+        stage('Setup Virtual Environment') {
             steps {
                 script {
                     echo "🔄 Installation des dépendances..."
                     sh """
                         set -e
-                        cd ${env.PROJECT_DIR}
+                        cd ${PROJECT_DIR}
                         python3 -m venv venv
                         . venv/bin/activate
-                        pip install -r requierements.txt
+                        pip install -r requirements.txt
                     """
                 }
             }
@@ -28,7 +37,7 @@ pipeline {
                     echo "🔍 Vérification du style de code avec Flake8..."
                     sh """
                         set -e
-                        cd ${env.PROJECT_DIR}
+                        cd ${PROJECT_DIR}
                         . venv/bin/activate
                         flake8 main.py model_pipeline.py --count --show-source --statistics
                     """
@@ -42,7 +51,7 @@ pipeline {
                     echo "🧪 Exécution des tests unitaires..."
                     sh """
                         set -e
-                        cd ${env.PROJECT_DIR}
+                        cd ${PROJECT_DIR}
                         . venv/bin/activate
                         pytest tests/ --maxfail=1 --disable-warnings -q
                     """
@@ -56,7 +65,7 @@ pipeline {
                     echo "🚀 Entraînement du modèle..."
                     sh """
                         set -e
-                        cd ${env.PROJECT_DIR}
+                        cd ${PROJECT_DIR}
                         . venv/bin/activate
                         python3 main.py --train --train_path churn-bigml-20.csv --test_path churn-bigml-80.csv
                     """
@@ -70,7 +79,7 @@ pipeline {
                     echo "📊 Évaluation du modèle..."
                     sh """
                         set -e
-                        cd ${env.PROJECT_DIR}
+                        cd ${PROJECT_DIR}
                         . venv/bin/activate
                         python3 main.py --evaluate --train_path churn-bigml-20.csv --test_path churn-bigml-80.csv
                     """
@@ -84,9 +93,9 @@ pipeline {
                     echo "💾 Sauvegarde du modèle..."
                     sh """
                         set -e
-                        cd ${env.PROJECT_DIR}
+                        cd ${PROJECT_DIR}
                         . venv/bin/activate
-                        python3 main.py --save prediction_model.joblib --train_path churn-bigml-20.csv --test_path churn-bigml-80.csv
+                        python3 main.py --save ${MODEL_PATH} --train_path churn-bigml-20.csv --test_path churn-bigml-80.csv
                     """
                 }
             }
@@ -96,7 +105,7 @@ pipeline {
             steps {
                 script {
                     echo "🚀 Lancement de l'API FastAPI..."
-                    sh "bash ${env.PROJECT_DIR}/start_api.sh"
+                    sh "bash ${PROJECT_DIR}/start_api.sh"
                 }
             }
         }
@@ -118,7 +127,7 @@ pipeline {
             steps {
                 script {
                     echo "🛑 Arrêt de l'API FastAPI..."
-                    sh "bash ${env.PROJECT_DIR}/stop_api.sh"
+                    sh "bash ${PROJECT_DIR}/stop_api.sh"
                 }
             }
         }
@@ -127,7 +136,7 @@ pipeline {
     post {
         always {
             echo "🔧 Nettoyage ou actions post-exécution"
-            sh "rm -rf ${env.PROJECT_DIR}/venv"
+            sh "rm -rf ${PROJECT_DIR}/venv"
         }
         success {
             echo "✅ Pipeline exécuté avec succès!"
