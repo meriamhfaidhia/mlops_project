@@ -11,6 +11,7 @@ pipeline {
             steps {
                 script {
                     echo "📥 Clonage du dépôt..."
+                    sh "git config --global http.postBuffer 524288000"
                     sh "git clone https://github.com/meriamhfaidhia/mlops_project.git ${PROJECT_DIR}"
                 }
             }
