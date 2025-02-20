@@ -7,4 +7,5 @@ mlflow
 fastapi
 uvicorn
 joblib
-
+pytest
+flake8

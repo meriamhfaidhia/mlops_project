@@ -1,10 +1,13 @@
 INFO:     Will watch for changes in these directories: ['/home/meriam/meriam-hfaidhia-4DS4-mlops_project']
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [23835] using StatReload
-INFO:     Started server process [23837]
+INFO:     Started reloader process [34589] using StatReload
+INFO:     Started server process [34591]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     192.168.80.1:50778 - "GET /docs HTTP/1.1" 200 OK
-INFO:     192.168.80.1:50778 - "GET /openapi.json HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37560 - "GET /docs HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37560 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     192.168.80.1:62024 - "GET /docs HTTP/1.1" 200 OK
+INFO:     192.168.80.1:62024 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [34591]
+INFO:     Stopping reloader process [34589]

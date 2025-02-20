@@ -1,5 +1,7 @@
 import argparse
 import logging
+import os
+import pandas as pd
 
 from model_pipeline import (
     prepare_data,
@@ -10,6 +12,27 @@ from model_pipeline import (
 )
 
 
+def load_prepared_data(
+    train_path="train_data_prepared.csv", test_path="test_data_prepared.csv"
+):
+    """Charge les données préparées si elles existent déjà."""
+    if os.path.exists("train_data_prepared.csv") and os.path.exists(
+        "test_data_prepared.csv"
+    ):
+        logging.info(
+            "📂 Chargement des données préparées depuis les fichiers "
+            "existants..."
+        )
+
+        X_train = pd.read_csv("train_data_prepared.csv").drop("Churn", axis=1)
+        y_train = pd.read_csv("train_data_prepared.csv")["Churn"]
+        X_test = pd.read_csv("test_data_prepared.csv").drop("Churn", axis=1)
+        y_test = pd.read_csv("test_data_prepared.csv")["Churn"]
+
+        return X_train, X_test, y_train, y_test
+    return None, None, None, None
+
+
 def main():
     """
     Pipeline de Machine Learning :
@@ -18,12 +41,11 @@ def main():
     - Évaluation
     - Sauvegarde/Chargement
     - Prédiction
-    - Affichage des versions enregistrées dans MLflow
     """
     # Configurer le logging
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s"
+        format="%(asctime)s - %(levelname)s - %(message)s",
     )
 
     # Parser des arguments
@@ -59,11 +81,21 @@ def main():
     # Analyser les arguments
     args = parser.parse_args()
 
-    # Préparation des données
-    logging.info("🔄 Chargement et préparation des données...")
-    X_train, X_test, y_train, y_test = prepare_data(
+    # Vérifier si les données préparées existent déjà
+    X_train, X_test, y_train, y_test = load_prepared_data(
         args.train_path, args.test_path
     )
+
+    # Si les données ne sont pas déjà préparées et qu'on doit les préparer
+    if args.prepare or X_train is None:
+        logging.info("🔄 Chargement et préparation des données...")
+        X_train, X_test, y_train, y_test = prepare_data(
+            args.train_path, args.test_path
+        )
+
+        logging.info("✅ Données préparées et sauvegardées.")
+        if args.prepare:
+            return  # Arrêter ici si on ne voulait que préparer les données
 
     model = None
 
@@ -85,9 +117,13 @@ def main():
     # Si un modèle est disponible, évaluation des performances
     if model and args.evaluate:
         logging.info("📊 Évaluation du modèle...")
-        accuracy, precision, recall, f1 = evaluate_model(
-            model, X_test, y_test
-        )
+        if not model:
+            logging.info(
+                "⚠️ Aucun modèle chargé ou entraîné. Veuillez entraîner un "
+                "modèle avant l'évaluation."
+            )
+            return
+        accuracy, precision, recall, f1 = evaluate_model(model, X_test, y_test)
 
         result_message = (
             f"✅ Résultats de l'évaluation :\n"
@@ -106,4 +142,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main

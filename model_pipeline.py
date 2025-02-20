@@ -99,6 +99,10 @@ def prepare_data(train_path, test_path):
     X_test = test_data.drop('Churn', axis=1)
     y_test = test_data['Churn']
 
+    # Sauvegarder les résultats dans des fichiers CSV
+    train_data.to_csv("train_data_prepared.csv", index=False)
+    test_data.to_csv("test_data_prepared.csv", index=False)
+
     return X_train, X_test, y_train, y_test
 
 
