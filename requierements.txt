@@ -9,3 +9,10 @@ uvicorn
 joblib
 pytest
 flake8
+pymongo
+tabulate
+seaborn
+sqlalchemy
+psycopg2-binary
+pydantic 
+elasticsearch

@@ -8,6 +8,35 @@ from pydantic import BaseModel
 import joblib
 import numpy as np
 import os
+from datetime import datetime
+from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+# Configuration de la base de données
+DATABASE_URL = "postgresql://postgres:wael@db:5432/mlops_db"
+
+# Créer une instance de moteur SQLAlchemy
+engine = create_engine(DATABASE_URL)
+
+# Créer une session pour interagir avec la base de données
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Déclarer une base pour les modèles SQLAlchemy
+Base = declarative_base()
+
+
+
+# Définir un modèle SQLAlchemy pour la table des prédictions
+class PredictionRecord(Base):
+    __tablename__ = "predictions"
+    id = Column(Integer, primary_key=True, index=True)
+    features = Column(String)  # Stocker les features sous forme de chaîne JSON
+    prediction = Column(Integer)  # Résultat de la prédiction
+    timestamp = Column(DateTime, default=datetime.utcnow)  # Horodatage de la prédiction
+
+# Créer la table dans la base de données (si elle n'existe pas déjà)
+Base.metadata.create_all(bind=engine)
 
 # Créer une instance FastAPI
 app = FastAPI()
@@ -52,6 +81,17 @@ def predict(request: PredictionRequest):
         # Convertir la prédiction en un type Python natif (par exemple, int)
         prediction_result = int(prediction[0])
 
+        # Enregistrer la prédiction dans la base de données
+        db = SessionLocal()
+        prediction_record = PredictionRecord(
+            features=str(request.features),  # Convertir la liste en chaîne JSON
+            prediction=prediction_result
+        )
+        db.add(prediction_record)
+        db.commit()
+        db.refresh(prediction_record)
+        db.close()
+
         return {"prediction": prediction_result}
 
     except ValueError as ve:
@@ -91,4 +131,5 @@ def retrain(request: RetrainRequest):
         raise HTTPException(status_code=404, detail=f"Fichier de données introuvable: {fnf}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors du réentraînement du modèle : {e}")
+        
 

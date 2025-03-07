@@ -2,51 +2,51 @@ pipeline {
     agent any
 
     environment {
-        PROJECT_DIR = "${WORKSPACE}"  // Utilisation du workspace Jenkins
+        PROJECT_DIR = '/home/meriam/meriam-hfaidhia-4DS4-mlops_project'
         MODEL_PATH = "${PROJECT_DIR}/prediction_model.joblib"
+        REPORT_PATH="${PROJECT_DIR}/performance_report.md"
+        MLFLOW_URL = 'http://127.0.0.1:5000'
     }
 
     stages {
-        stage('Download Repository') {
-            steps {
-                script {
-                    echo "📥 Téléchargement du dépôt en tant qu'archive ZIP..."
-                    sh """
-                        # Téléchargement de l'archive ZIP du dépôt
-                        curl -L https://github.com/meriamhfaidhia/mlops_project/archive/refs/heads/main.zip -o ${PROJECT_DIR}/mlops_project.zip
-                        
-                        # Extraction de l'archive ZIP
-                        unzip ${PROJECT_DIR}/mlops_project.zip -d ${PROJECT_DIR}
-                        
-                        # Renommer le dossier extrait pour correspondre à la structure du projet
-                        mv ${PROJECT_DIR}/mlops_project-main ${PROJECT_DIR}/mlops_project
-                    """
-                }
-            }
-        }
-
-        stage('Setup Virtual Environment') {
+        stage('Preparation') {
             steps {
                 script {
                     echo "🔄 Installation des dépendances..."
                     sh """
-                        set -e
-                        cd ${PROJECT_DIR}/mlops_project
-                        python3 -m venv venv
-                        . venv/bin/activate
-                        pip install -r requirements.txt
+                    set -e
+                    cd ${env.PROJECT_DIR}
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install -r requierements.txt
+                    sudo apt-get update
+                    sudo apt-get install -y jq
+                    sudo chown -R jenkins:jenkins ${env.PROJECT_DIR}
+                    """
+                }
+            }
+        }
+        stage('Data Preprocessing') {
+            steps {
+                script {
+                    echo "📊 Préparation des données..."
+                    sh """
+                    cd ${env.PROJECT_DIR}
+                    . venv/bin/activate
+                    python main.py --prepare --train_path churn-bigml-80.csv --test_path churn-bigml-20.csv
                     """
                 }
             }
         }
 
+    
         stage('Code Linting') {
             steps {
                 script {
                     echo "🔍 Vérification du style de code avec Flake8..."
                     sh """
                         set -e
-                        cd ${PROJECT_DIR}/mlops_project
+                        cd ${env.PROJECT_DIR}
                         . venv/bin/activate
                         flake8 main.py model_pipeline.py --count --show-source --statistics
                     """
@@ -60,37 +60,74 @@ pipeline {
                     echo "🧪 Exécution des tests unitaires..."
                     sh """
                         set -e
-                        cd ${PROJECT_DIR}/mlops_project
+                        cd ${env.PROJECT_DIR}
                         . venv/bin/activate
-                        pytest tests/ --maxfail=1 --disable-warnings -q
+                        pytest tests/ --maxfail=1 --disable-warnings -q 
                     """
                 }
             }
         }
+stage('Train Model') {
+    steps {
+        script {
+            echo "🚀 Entraînement du modèle..."
 
-        stage('Train Model') {
-            steps {
-                script {
-                    echo "🚀 Entraînement du modèle..."
-                    sh """
-                        set -e
-                        cd ${PROJECT_DIR}/mlops_project
-                        . venv/bin/activate
-                        python3 main.py --train --train_path churn-bigml-20.csv --test_path churn-bigml-80.csv
-                    """
-                }
-            }
+            // Vérification si MongoDB est démarré et démarrer si nécessaire
+            sh """
+                set -e
+                cd ${env.PROJECT_DIR}
+                . venv/bin/activate
+                
+                # Vérification si MongoDB est en cours d'exécution
+                if ! docker ps -q -f name=mongodb_official; then
+                    echo "MongoDB n'est pas en cours d'exécution. Tentative de démarrage..."
+                    if ! docker ps -a -q -f name=mongodb_official; then
+                        # MongoDB n'existe pas, création du conteneur
+                        echo "Création du conteneur MongoDB..."
+                        docker run --name mongodb_official -d -p 27017:27017 mongo || echo "Échec de la création du conteneur MongoDB"
+                    else
+                        # MongoDB est arrêté, démarrage du conteneur
+                        echo "Démarrage du conteneur MongoDB..."
+                        docker start mongodb_official || echo "Échec du démarrage de MongoDB"
+                    fi
+                else
+                    echo "✅ MongoDB est déjà en cours d'exécution."
+                fi
+            """
+
+            // Attendre que MongoDB soit prêt
+            sh """
+                set -e
+                cd ${env.PROJECT_DIR}
+                . venv/bin/activate
+
+                # Attendre que MongoDB soit prêt
+                echo "⏳ Attente que MongoDB soit prêt..."
+                until docker exec mongodb_official mongosh --eval "db.adminCommand('ping')" > /dev/null 2>&1; do
+                    sleep 1
+                done
+                echo "✅ MongoDB est prêt."
+            """
+
+            // Activation de l'environnement virtuel et exécution du script Python
+            sh """
+                set -e
+                cd ${env.PROJECT_DIR}
+                . venv/bin/activate
+                python3 main.py --train --train_path "train_data_prepared.csv" --test_path "test_data_prepared.csv"
+            """
         }
-
+    }
+}
         stage('Evaluate Model') {
             steps {
                 script {
                     echo "📊 Évaluation du modèle..."
                     sh """
                         set -e
-                        cd ${PROJECT_DIR}/mlops_project
+                        cd ${env.PROJECT_DIR}
                         . venv/bin/activate
-                        python3 main.py --evaluate --train_path churn-bigml-20.csv --test_path churn-bigml-80.csv
+                        python main.py --evaluate --train_path train_data_prepared.csv --test_path test_data_prepared.csv --load prediction_model.joblib 
                     """
                 }
             }
@@ -102,22 +139,160 @@ pipeline {
                     echo "💾 Sauvegarde du modèle..."
                     sh """
                         set -e
-                        cd ${PROJECT_DIR}/mlops_project
+                        cd ${env.PROJECT_DIR}
                         . venv/bin/activate
-                        python3 main.py --save ${MODEL_PATH} --train_path churn-bigml-20.csv --test_path churn-bigml-80.csv
+                        python main.py --load prediction_model.joblib --save churn_model_backup.joblib --train_path train_data_prepared.csv --test_path test_data_prepared.csv
                     """
                 }
             }
         }
 
-        stage('Deploy API') {
+stage('Start MLflow UI commande') {
             steps {
                 script {
-                    echo "🚀 Lancement de l'API FastAPI..."
-                    sh "bash ${PROJECT_DIR}/mlops_project/start_api.sh"
+                    echo "🚀 Démarrage du serveur MLflow..."
+                    sh """
+                        set -e
+                        cd ${env.PROJECT_DIR}
+                        . venv/bin/activate
+                        nohup mlflow ui --backend-store-uri sqlite:///mlflow.db --default-artifact-root mongodb://localhost:27017/mlflow_artifacts > ${env.PROJECT_DIR}/mlflow.log 2>&1 &
+                    """
+                    echo "✅ MLflow UI a démarré avec succès !"
+                    echo "Accédez à l'interface MLflow à l'adresse : ${env.MLFLOW_URL}"
+                    sleep 90
                 }
             }
         }
+    stage('Start MLflow UI docker conteneur') {
+    steps {
+        script {
+            echo "🚀 Démarrage du serveur MLflow..."
+
+            // Stop and remove existing container if it exists
+            sh """
+                set -e
+                cd ${env.PROJECT_DIR}
+                docker ps -aq --filter name=mlflow_server | xargs -r docker stop
+                docker ps -aq --filter name=mlflow_server | xargs -r docker rm
+                docker run -d -p 5011:5000 --name mlflow_server \
+                -v "${WORKSPACE}/mlflow.db:/mlflow.db" \
+                -e MLFLOW_BACKEND_STORE_URI=sqlite:////mlflow.db \
+                -e MLFLOW_DEFAULT_ARTIFACT_ROOT=mongodb://mongodb_official:27017/mlflow_artifacts \
+                meriam-hfaidhia-4ds4-mlops_project-mlflow_server
+            """
+            echo "✅ MLflow UI a démarré avec succès !"
+            echo "Accédez à l'interface MLflow à l'adresse : ${env.MLFLOW_URL}"
+
+            sleep 90
+        }
+    }
+}
+
+
+        stage('Promote Model') {
+    steps {
+        script {
+            echo "🚀 Promotion du modèle..."
+            sh """
+                set -e
+                cd ${env.PROJECT_DIR}
+                . venv/bin/activate
+                python main.py --promote Production --model_version 5
+            """
+        }
+    }
+}
+     
+  stage('Start FastAPI Application') {
+    steps {
+        script {
+            echo "🚀 Démarrage de l'application FastAPI..."
+
+            // Debug: Ensure the PROJECT_DIR is correct
+            echo "PROJECT_DIR is: ${env.PROJECT_DIR}"
+
+            sh """
+                set -e
+                cd ${env.PROJECT_DIR}
+            """
+
+            // Stop and remove existing containers if they exist
+            sh """
+                docker-compose -f ${env.PROJECT_DIR}/docker-compose-app.yml down || true
+            """
+
+            // Start the FastAPI application
+            sh """
+                docker-compose -f ${env.PROJECT_DIR}/docker-compose-app.yml up -d
+            """
+
+            // Wait for FastAPI to start
+            sh """
+                until curl -sSf http://localhost:8000/docs; do
+                    echo "En attente du démarrage de l'application FastAPI..."
+                    sleep 10
+                done
+            """
+
+            // Check if FastAPI is running
+            sh """
+                if ! curl -sSf http://localhost:8000/docs; then
+                    echo "❌ Échec du démarrage de l'application FastAPI."
+                    exit 1
+                fi
+            """
+
+            echo "✅ L'application FastAPI a démarré avec succès !"
+            echo "Accédez à l'API FastAPI à l'adresse : http://localhost:8000/docs"
+
+            // Vérifier les prédictions dans la base de données
+            echo "🔍 Vérification des prédictions dans la base de données..."
+
+            sh """
+                docker-compose -f ${env.PROJECT_DIR}/docker-compose-app.yml exec db psql -U postgres -d mlops_db -c "SELECT * FROM predictions;"
+            """
+
+            echo "✅ Vérification des prédictions terminée."
+        }
+    }
+}
+
+
+        stage('Deploy API commande normale') {
+            steps {
+                script {
+                    echo "🚀 Lancement de l'API FastAPI..."
+                    sh "bash ${env.PROJECT_DIR}/start_api.sh" 
+                    sleep 10
+                }
+            }
+        }
+        stage('Deploy Flask API') {
+            steps {
+                script {
+                    echo "🚀 Lancement de l'API Flask..."
+                    sh """
+                        set -e
+                        cd ${env.PROJECT_DIR}
+                        . venv/bin/activate
+                        nohup python FlaskApp.py &
+                    """
+                    sleep 10
+                }
+            }
+        }
+        stage('Test Flask API Deployment') {
+            steps {
+                script {
+                    echo "✔️ Test de déploiement de l'API Flask..."
+                    sh """
+                        set -e
+                        curl --retry 10 --retry-delay 5 --fail http://192.168.93.6:5001/
+                    """
+                }
+            }
+        }
+
 
         stage('Test API') {
             steps {
@@ -125,34 +300,166 @@ pipeline {
                     echo "✔️ Test de l'API via Swagger..."
                     sh """
                         set -e
-                        curl --retry 10 --retry-delay 5 --fail http://192.168.93.6:8000/docs
-                        curl --retry 10 --retry-delay 5 --fail http://192.168.93.6:8000/predict -X POST -H "Content-Type: application/json" -d '{"data": [0.1, 0.2, 0.3]}'
+                        curl --retry 10 --retry-delay 5 --fail http://192.168.93.6:8000/docs 
                     """
                 }
             }
         }
 
-        stage('Stop API') {
-            steps {
-                script {
-                    echo "🛑 Arrêt de l'API FastAPI..."
-                    sh "bash ${PROJECT_DIR}/mlops_project/stop_api.sh"
-                }
+       stage('Test Prediction') {
+    steps {
+        script {
+            echo "✔️ Test de la prédiction via l'API FastAPI..."
+            def response = sh(script: """
+                set -e
+                curl --request POST \
+                --url http://192.168.93.6:8000/predict/ \
+                --header 'Content-Type: application/json' \
+                --data '{
+                    "features": [1, 2, 3, 4, 5, 6, 1, 13, 11, 10, 2, 0, 1]
+                }' 
+            """, returnStdout: true).trim()
+
+            // Utiliser jq pour parser la réponse et obtenir la prédiction
+            def prediction = sh(script: "echo '${response}' | jq '.prediction'", returnStdout: true).trim()
+            
+            // Afficher le résultat en fonction de la prédiction
+            if (prediction == "1") {
+                echo "✅ Prédiction : Churn"
+            } else if (prediction == "0") {
+                echo "✅ Prédiction : Not Churn"
+            } else {
+                echo "❌ Erreur : Prédiction non valide"
             }
         }
     }
+}
+  stage('Test Prediction for FlaskApp') {
+    steps {
+        script {
+            echo "✔️ Test de la prédiction via l'API Flask..."
+            def response = sh(script: """
+                set -e
+                curl --request POST \
+                --url http://192.168.93.6:5001/predict \
+                --data 'account_length=100&number_vmail_messages=5&total_day_calls=150&total_day_charge=55.5&total_eve_calls=200&total_eve_charge=30.7&total_night_calls=300&total_night_charge=45.2&total_intl_calls=30&total_intl_charge=15.6&customer_service_calls=3&international_plan=1&voice_mail_plan=1' \
+                --silent
+            """, returnStdout: true).trim()
 
-    post {
-        always {
-            echo "🔧 Nettoyage ou actions post-exécution"
-            sh "rm -rf ${PROJECT_DIR}/mlops_project/venv"
+            // Extraire le résultat du HTML
+            def predictionMatch = response =~ /<p>Le résultat de la prédiction est : <strong>(.*?)<\/strong><\/p>/
+            if (predictionMatch.find()) {
+                def prediction = predictionMatch[0][1]
+                echo "✅ Prédiction : ${prediction}"
+            } else {
+                echo "❌ Erreur : Impossible d'extraire la prédiction"
+            }
         }
+    }
+}
+
+
+        stage('Retrain Model') {
+            steps {
+                script {
+                    echo "🔄 Réentraînement du modèle..."
+                    sh """
+                        set -e
+                        curl --request POST \
+                        --url http://192.168.93.6:8000/retrain/ \
+                        --header 'Content-Type: application/json' \
+                        --data '{
+                            "n_estimators": 100,
+                            "max_depth": 10,
+                            "min_samples_split": 2,
+                            "train_path": "churn-bigml-20.csv",
+                            "test_path": "churn-bigml-80.csv"
+                        }' 
+                    """
+                }
+            }
+        }
+        
+        stage('Generate Model Card') {
+    steps {
+        script {
+            echo "📄 Génération de la fiche de modèle..."
+            sh """
+                set -e
+                cd ${env.PROJECT_DIR}
+                . venv/bin/activate
+                python3 generate_model_card.py --model_path ${env.MODEL_PATH} --output_path ${env.PROJECT_DIR}/model_card.md --test_path test_data_prepared.csv
+            """
+        }
+    }
+}
+stage('Generate Performance Report') {
+    steps {
+        script {
+            echo "📊 Génération du rapport de performance..."
+            sh """
+                set -e
+                cd ${env.PROJECT_DIR}
+                . venv/bin/activate
+                python3 generate_performance_report.py --model_path ${env.MODEL_PATH} --output_path ${env.REPORT_PATH} --test_path test_data_prepared.csv
+            """
+        }
+    }
+}
+
+     
+    }
+
+ post {
+    always {
+        echo "🔧 Nettoyage ou actions post-exécution"
+        sh "rm -rf ${env.PROJECT_DIR}/venv"
+
+        // Copier les fichiers dans le workspace
+        sh "cp ${env.PROJECT_DIR}/model_card.md ."
+        sh "cp ${env.PROJECT_DIR}/performance_report.md ."
+        sh "cp ${env.PROJECT_DIR}/performance_report.md_confusion_matrix.png ."
+
+        // Vérifier l'existence des fichiers dans le workspace
+        sh "ls -l"
+
+        script {
+            def jobName = env.JOB_NAME
+            def buildNumber = env.BUILD_NUMBER
+            def pipelineStatus = currentBuild.result ?: 'UNKNOWN'
+            def bannerColor = pipelineStatus.toUpperCase() == 'SUCCESS' ? 'green' : 'red'
+
+            def body = """<html>
+            <body>
+                <div style="border: 4px solid ${bannerColor}; padding: 10px;">
+                    <h2>${jobName} Build ${buildNumber}</h2>
+                    <div style="background-color: ${bannerColor}; padding: 10px;">
+                        <h3 style="color: white;">Pipeline Status: ${pipelineStatus.toUpperCase()}</h3>
+                    </div>
+                    <p>Check the <a href="${env.BUILD_URL}">console output</a>.</p>
+                </div>
+            </body>
+            </html>"""
+
+            // Utiliser un pattern GLOB valide
+            emailext(
+                subject: "${jobName} Build ${buildNumber} ${pipelineStatus}",
+                body: body,
+                to: 'meriamhfaidhia@gmail.com',
+                from: 'jenkins@example.com',
+                replyTo: 'jenkins@example.com',
+                mimeType: 'text/html',
+                attachmentsPattern: "model_card.md, performance_report.md,performance_report.md_confusion_matrix.png", // Utiliser un pattern GLOB valide
+            )
+        }
+    }
+
         success {
             echo "✅ Pipeline exécuté avec succès!"
         }
+
         failure {
             echo "❌ Pipeline échoué."
         }
     }
 }
-

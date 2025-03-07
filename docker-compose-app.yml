@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:13
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: wael
+      POSTGRES_DB: mlops_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  api:
+    build:
+      context: .
+      dockerfile: dockerfile.api  # Utilise le Dockerfile spécifique pour l'API FastAPI
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"  # Map host port 8000 to container port 8000
+    environment:
+      DATABASE_URL: "postgresql://postgres:wael@db:5432/mlops_db"
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - db
+    restart: always
+
+volumes:
+  postgres_data:
+    driver: local  # Utilisation du driver local pour les volumes PostgreSQL
+

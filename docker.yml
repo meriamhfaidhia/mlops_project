@@ -1,0 +1,28 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_official
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - mlflow_artifacts:/mlflow_artifacts  # Volume pour les artefacts MLflow
+
+  mlflow:
+    build: .
+    container_name: mlflow_server
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+      - mlflow_artifacts:/mlflow_artifacts  # Associer le volume MLflow ici
+    depends_on:
+      - mongodb
+    environment:
+      - MLFLOW_TRACKING_URI=sqlite:///mlflow.db
+      - MLFLOW_ARTIFACT_URI=mongodb://mongodb:27017/mlflow_artifacts
+
+volumes:
+  mongodb_data:
+  mlflow_artifacts:  # Définir un volume pour les artefacts MLflow
+

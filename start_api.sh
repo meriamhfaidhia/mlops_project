@@ -20,7 +20,7 @@ if [ -f uvicorn_pid.txt ]; then
 fi
 
 # Launch FastAPI with nohup and save the PID
-nohup uvicorn app:app --host 0.0.0.0 --port 8000 --reload > uvicorn.log 2>&1 
+nohup uvicorn app:app --host 0.0.0.0 --port 8000 --reload > uvicorn.log 2>&1& 
 echo $! > uvicorn_pid.txt
 
 # Output the success message
