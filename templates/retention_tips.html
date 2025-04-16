@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Retention Strategies</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/assets/css/style.css">
+
+  <style>
+    /* Reset body and html for proper scrolling */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      font-family: 'DM Sans', sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    
+    main {
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .retention-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      min-height: calc(100vh - 80px); /* Ensure container takes at least full viewport height */
+    }
+    
+    .retention-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .retention-header h1 {
+      font-size: 2.5rem;
+      color: #e74c3c;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+    
+    .retention-header p {
+      font-size: 1.2rem;
+      color: #555;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    
+    .strategy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+      padding-bottom: 40px; /* Add padding to bottom */
+    }
+    
+    .strategy-card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      border: 1px solid #eee;
+    }
+    
+    .strategy-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    }
+    
+    .strategy-image {
+      height: 200px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .strategy-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    
+    .strategy-card:hover .strategy-image img {
+      transform: scale(1.05);
+    }
+    
+    .strategy-content {
+      padding: 25px;
+    }
+    
+    .strategy-content h3 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    
+    .strategy-content p {
+      color: #555;
+      margin-bottom: 20px;
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+    
+    .action-steps {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      border-left: 4px solid #e74c3c;
+    }
+    
+    .action-steps h4 {
+      color: #e74c3c;
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+    }
+    
+    .action-steps ol {
+      padding-left: 20px;
+      color: #555;
+    }
+    
+    .action-steps li {
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    
+    .back-button {
+      display: block;
+      text-align: center;
+      margin-top: 60px;
+      padding-bottom: 40px; /* Extra padding at bottom */
+    }
+    
+    .urgency-banner {
+      background: linear-gradient(135deg, #e74c3c 0%, #f39c12 100%);
+      color: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 40px;
+      animation: pulse-bg 3s infinite;
+      box-shadow: 0 5px 15px rgba(231, 76, 60, 0.2);
+    }
+    
+    .urgency-banner h2 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+    
+    .urgency-banner p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    @keyframes pulse-bg {
+      0% { transform: scale(1); box-shadow: 0 5px 15px rgba(231, 76, 60, 0.2); }
+      50% { transform: scale(1.01); box-shadow: 0 8px 25px rgba(231, 76, 60, 0.3); }
+      100% { transform: scale(1); box-shadow: 0 5px 15px rgba(231, 76, 60, 0.2); }
+    }
+
+    /* Boutons améliorés */
+    .btn-retention {
+      display: inline-block;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+      margin: 10px;
+      text-align: center;
+    }
+    
+    .btn-primary {
+      background: #3498db;
+      color: white;
+      box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+    }
+    
+    .btn-primary:hover {
+      background: #2980b9;
+      transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+      background: #e74c3c;
+      color: white;
+      box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+    }
+    
+    .btn-secondary:hover {
+      background: #c0392b;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+
+<body id="top">
+
+  <!-- Main Content -->
+  <main>
+    <article>
+      <div class="retention-container">
+        <div class="retention-header">
+          <h1>Customer Retention Strategies</h1>
+          <p>Proven techniques to prevent customer churn and rebuild loyalty</p>
+        </div>
+        
+        <div class="urgency-banner">
+          <h2>⏰ Immediate Action Recommended</h2>
+          <p>Customers identified as churn risks require prompt intervention for best results</p>
+        </div>
+        
+        <div class="strategy-grid">
+          <!-- Strategy 1 -->
+          <div class="strategy-card">
+            <div class="strategy-image">
+              <img src="/static/assets/images/personal-offer.jpg" alt="Personalized Offer">
+            </div>
+            <div class="strategy-content">
+              <h3>1. Personalized Retention Offer</h3>
+              <p>Create customized incentives based on the customer's usage patterns and value to your business.</p>
+              
+              <div class="action-steps">
+                <h4>Implementation Steps:</h4>
+                <ol>
+                  <li>Analyze customer's service usage</li>
+                  <li>Identify pain points in their experience</li>
+                  <li>Create tailored discount or feature offer</li>
+                  <li>Deliver via personal outreach</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Strategy 2 -->
+          <div class="strategy-card">
+            <div class="strategy-image">
+              <img src="/static/assets/images/customer-feedback.jpg" alt="Customer Feedback">
+            </div>
+            <div class="strategy-content">
+              <h3>2. Win-Back Campaign</h3>
+              <p>Develop a multi-channel campaign to re-engage at-risk customers with targeted messaging.</p>
+              
+              <div class="action-steps">
+                <h4>Implementation Steps:</h4>
+                <ol>
+                  <li>Segment at-risk customers</li>
+                  <li>Create email/SMS sequence</li>
+                  <li>Include success case studies</li>
+                  <li>Offer limited-time incentives</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Strategy 3 -->
+          <div class="strategy-card">
+            <div class="strategy-image">
+              <img src="/static/assets/images/success-manager.jpg" alt="Success Manager">
+            </div>
+            <div class="strategy-content">
+              <h3>3. Dedicated Success Manager</h3>
+              <p>Assign a personal contact to high-value at-risk customers to address their concerns directly.</p>
+              
+              <div class="action-steps">
+                <h4>Implementation Steps:</h4>
+                <ol>
+                  <li>Identify top-value at-risk customers</li>
+                  <li>Assign account managers</li>
+                  <li>Schedule check-in calls</li>
+                  <li>Provide escalation path</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="back-button">
+          <a href="/" class="btn btn-primary">
+            <span class="text text-1">Back to Prediction</span>
+            <span class="text text-2" aria-hidden="true">Back to Prediction</span>
+          </a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <script src="/static/assets/js/script.js"></script>
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</body>
+</html>

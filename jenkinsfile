@@ -119,6 +119,23 @@ stage('Train Model') {
         }
     }
 }
+
+        stage('Fetch Logs from Elasticsearch') {
+    steps {
+        script {
+            echo "🔍 Récupération des logs depuis Elasticsearch..."
+            
+            // Effectuer une requête GET vers Elasticsearch pour récupérer les logs
+            def response = sh(script: """
+                curl -X GET "http://localhost:9200/mlflow-metrics/_search?pretty" -H 'Content-Type: application/json'
+            """, returnStdout: true).trim()
+            
+            // Afficher la réponse dans la console de Jenkins
+            echo "Réponse Elasticsearch: ${response}"
+        }
+    }
+}
+
         stage('Evaluate Model') {
             steps {
                 script {
@@ -132,6 +149,7 @@ stage('Train Model') {
                 }
             }
         }
+        
 
         stage('Save Model') {
             steps {
@@ -159,7 +177,7 @@ stage('Start MLflow UI commande') {
                     """
                     echo "✅ MLflow UI a démarré avec succès !"
                     echo "Accédez à l'interface MLflow à l'adresse : ${env.MLFLOW_URL}"
-                    sleep 90
+                    sleep 10
                 }
             }
         }
@@ -183,7 +201,7 @@ stage('Start MLflow UI commande') {
             echo "✅ MLflow UI a démarré avec succès !"
             echo "Accédez à l'interface MLflow à l'adresse : ${env.MLFLOW_URL}"
 
-            sleep 90
+            sleep 10
         }
     }
 }
@@ -197,7 +215,7 @@ stage('Start MLflow UI commande') {
                 set -e
                 cd ${env.PROJECT_DIR}
                 . venv/bin/activate
-                python main.py --promote Production --model_version 5
+                python main.py --promote Production --model_version 50
             """
         }
     }
@@ -263,7 +281,7 @@ stage('Start MLflow UI commande') {
                 script {
                     echo "🚀 Lancement de l'API FastAPI..."
                     sh "bash ${env.PROJECT_DIR}/start_api.sh" 
-                    sleep 10
+                    sleep 30
                 }
             }
         }
@@ -277,7 +295,7 @@ stage('Start MLflow UI commande') {
                         . venv/bin/activate
                         nohup python FlaskApp.py &
                     """
-                    sleep 10
+                     sleep 30
                 }
             }
         }

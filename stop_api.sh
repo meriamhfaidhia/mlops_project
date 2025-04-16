@@ -1,30 +1,30 @@
 #!/bin/bash
 
-set -e  # Stop the script in case of an error
+set -e  # Arrêter le script en cas d'erreur
 
-# Define the project directory
-PROJECT_DIR="/home/meriam/meriam-hfaidhia-4DS4-mlops_project"
+# Définir le dossier du projet
+PROJECT_DIR="/home/meriam/meriam-hfidhia-4DS4-mlops_project"
 
 cd "$PROJECT_DIR"
 
-# Check if the PID file exists
-if [ ! -f uvicorn_pid.txt ]; then
-    echo "⚠️ Aucun fichier PID trouvé. L'API n'est probablement pas lancée."
-    exit 1
-fi
+# Vérifier si le fichier PID existe
+if [ -f uvicorn_pid.txt ]; then
+    PID=$(cat uvicorn_pid.txt)
 
-# Read the PID from the file
-PID=$(cat uvicorn_pid.txt)
+    # Vérifier si le processus est en cours d'exécution
+    if ps -p $PID > /dev/null; then
+        echo "🚦 Arrêt de l'API avec le PID $PID..."
 
-# Check if the process is running
-if ps -p $PID > /dev/null; then
-    # Stop the FastAPI server
-    kill $PID
-    echo "🛑 API stoppée avec succès. PID: $PID"
-    # Remove the PID file
+        # Tuer le processus uvicorn
+        kill $PID
+        echo "✅ API arrêtée avec succès."
+    else
+        echo "⚠️ Aucun processus API trouvé pour le PID $PID."
+    fi
+
+    # Supprimer le fichier PID
     rm uvicorn_pid.txt
 else
-    echo "⚠️ Aucune API en cours d'exécution avec le PID $PID."
-    exit 1
+    echo "⚠️ Le fichier uvicorn_pid.txt est introuvable. L'API n'est pas démarrée."
 fi
 

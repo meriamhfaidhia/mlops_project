@@ -1,13 +1,412 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Résultat de la Prédiction</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- 
+    - primary meta tags
+  -->
+  <title>Predection Deploiement</title>
+  <meta name="title" content="Grilli - Amazing & Delicious Food">
+  <meta name="description" content="This is a Restaurant html template made by codewithsadee">
+
+  <!-- 
+    - favicon
+  -->
+
+  <!-- 
+    - google font link
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
+
+  <!-- 
+    - custom css link
+  -->
+  <link rel="stylesheet" href="/static/assets/css/style.css">
+
+  <!-- 
+    - preload images
+  -->
+  <link rel="preload" as="image" href="/static/assets/images/future.jpg">
+  <link rel="preload" as="image" href="/static/assets/images/hero-slider-2.jpg">
+  <link rel="preload" as="image" href="/static/assets/images/hero-slider-3.jpg">
+
 </head>
-<body>
-    <h2>Résultat de la Prédiction du Churn</h2>
-    <p>Le résultat de la prédiction est : <strong>{{ prediction }}</strong></p>
-    <a href="/">Retour à l'accueil</a>
+
+<body id="top">
+
+  <!-- 
+    - #PRELOADER
+  -->
+
+ 
+
+  <section class="section about text-center" aria-labelledby="about-label" id="about">
+    <div class="container">
+        <div class="about-content">
+            <p class="label-2 section-subtitle" id="about-label">Prediction Result</p>
+            <h2 class="headline-1 section-title">Customer Churn Analysis</h2>
+            <div class="robot-container">
+                <div class="robot">
+                  <div class="robot-head">
+                    <div class="robot-eyes">
+                      <div class="eye"></div>
+                      <div class="eye"></div>
+                    </div>
+                    {% if result == 1 %}
+                      <div class="robot-mouth sad-mouth"></div>
+                    {% else %}
+                      <div class="robot-mouth happy-mouth"></div>
+                    {% endif %}
+                  </div>
+                  <div class="robot-body">
+                    <div class="robot-arm arm-left"></div>
+                    <div class="robot-arm arm-right"></div>
+                  </div>
+                </div>
+                {% if result == 1 %}
+                  <p class="robot-message sad-message">Oh no! We should act fast!</p>
+                {% else %}
+                  <p class="robot-message happy-message">Great news! Keep it up!</p>
+                {% endif %}
+              </div>
+            
+            <!-- Animated result box -->
+            <div class="result-box {% if result == 1 %}churn-box{% else %}safe-box{% endif %}">
+                <div class="result-icon">
+                    {% if result == 1 %}
+                        <img src="/static/assets/images/warning.png" alt="Warning" class="pulse-animation">
+                    {% else %}
+                        <img src="/static/assets/images/success.png" alt="Success" class="float-animation">
+                    {% endif %}
+                </div>
+                
+                <div class="result-content">
+                    <h3 class="result-title">
+                        {% if result == 1 %}
+                            🚨 Attention Required
+                        {% else %}
+                            👍 All Good!
+                        {% endif %}
+                    </h3>
+                    
+                    <div class="result-message">
+                        {% if result == 1 %}
+                            <p>Our analysis predicts this customer is <span class="highlight-red">likely to churn</span>.</p>
+                            <p>Immediate retention actions are recommended.</p>
+                        {% else %}
+                            <p>This customer is <span class="highlight-green">likely to stay</span> with us.</p>
+                            <p>Keep up the good service!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="action-buttons">
+                <a href="/" class="btn btn-primary">
+                    <span class="text text-1">New Prediction</span>
+                    <span class="text text-2" aria-hidden="true">New Prediction</span>
+                </a>
+                
+                {% if result == 1 %}
+                <a href="/retention-tips" class="btn btn-secondary">
+                    <span class="text text-1">Retention Tips</span>
+                    <span class="text text-2" aria-hidden="true">Retention Tips</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <figure class="about-banner">
+            {% if result == 1 %}
+                <img src="/static/assets/images/alert.png" width="700" height="700" loading="lazy" 
+                     alt="Customer leaving" class="w-100 shake-animation" data-parallax-item data-parallax-speed="1">
+            {% else %}
+                <img src="/static/assets/images/happy.jpg" width="700" height="700" loading="lazy" 
+                     alt="Happy customer" class="w-100" data-parallax-item data-parallax-speed="1">
+            {% endif %}
+        </figure>
+    </div>
+</section>
+
+<style>
+    html, body {
+    height: 100%;   /* Ensure body and html take the full height of the viewport */
+    overflow-x: hidden;  /* Prevent horizontal scrolling */
+}
+
+body {
+    overflow-y: auto;  /* Enable vertical scrolling when content exceeds viewport */
+}
+
+ .robot-container {
+  position: relative;
+  width: 200px;
+  height: 300px; /* Augmenter la hauteur pour donner plus d'espace */
+  margin: 0 auto 30px;
+}
+
+.robot {
+  position: relative;
+  width: 150px;
+  height: 230px; /* Augmenter la hauteur pour équilibrer le robot */
+  margin: 0 auto;
+}
+
+.robot-head {
+  width: 100px;
+  height: 100px;
+  background: #f0f0f0;
+  border-radius: 50%;
+  margin: 0 auto;
+  position: relative;
+  border: 5px solid #ddd;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+}
+
+.robot-eyes {
+  position: absolute;
+  top: 30px;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+
+.eye {
+  width: 20px;
+  height: 25px;
+  background: #333;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+.eye::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+}
+
+.robot-mouth {
+  position: absolute;
+  bottom: 10px; /* Déplacer la bouche un peu plus bas */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px; /* Agrandir la bouche pour qu'elle soit plus visible */
+  height: 20px;
+  border-radius: 0 0 20px 20px;
+}
+
+.happy-mouth {
+  background: #4CAF50;
+  border-radius: 0 0 20px 20px;
+  animation: smile 2s infinite;
+}
+
+.sad-mouth {
+  background: #E74C3C;
+  border-radius: 20px 20px 0 0;
+  animation: frown 2s infinite;
+  height: 12px; /* Ajuster la taille de la bouche triste */
+}
+
+.robot-body {
+  width: 100px;
+  height: 120px; /* Augmenter la taille du corps pour correspondre à la tête */
+  background: #f0f0f0;
+  margin: 0 auto;
+  border-radius: 20px;
+  position: relative;
+  border: 5px solid #ddd;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+}
+
+.robot-arm {
+  position: absolute;
+  width: 20px;
+  height: 60px;
+  background: #e0e0e0;
+  top: 30px;
+}
+
+.arm-left {
+  left: -25px;
+  transform-origin: top center;
+  animation: wave-left 3s infinite;
+}
+
+.arm-right {
+  right: -25px;
+  transform-origin: top center;
+  animation: wave-right 3s infinite;
+}
+
+@keyframes smile {
+  0%, 100% { width: 50px; }
+  50% { width: 60px; }
+}
+
+@keyframes frown {
+  0%, 100% { width: 50px; }
+  50% { width: 40px; }
+}
+
+@keyframes wave-left {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-45deg); }
+  50% { transform: rotate(0deg); }
+}
+
+@keyframes wave-right {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(45deg); }
+  50% { transform: rotate(0deg); }
+}
+
+.robot-message {
+  text-align: center;
+  margin-top: 20px;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.happy-message {
+  color: #27AE60;
+  animation: bounce 2s infinite;
+}
+
+.sad-message {
+  color: #E74C3C;
+  animation: shake 0.5s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+    /* Result Box Styling - Version améliorée */
+    .result-box {
+        border-radius: 20px;
+        padding: 30px;
+        margin: 2rem auto;
+        max-width: 600px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: all 0.5s ease;
+        color: #333; /* Couleur de texte par défaut */
+    }
+    
+    .churn-box {
+        background: linear-gradient(135deg, #FFF3F3 0%, #FFE6E6 100%);
+        border-left: 5px solid #E74C3C;
+        color: #333; /* Texte plus foncé pour meilleure lisibilité */
+    }
+    
+    .safe-box {
+        background: linear-gradient(135deg, #F0FFF4 0%, #E6FFED 100%);
+        border-left: 5px solid #2ECC71;
+        color: #333; /* Texte plus foncé pour meilleure lisibilité */
+    }
+    
+    .result-icon img {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 20px;
+    }
+    
+    .result-title {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+        color: inherit; /* Utilise la couleur définie dans le parent */
+    }
+    
+    .result-message {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: inherit; /* Utilise la couleur définie dans le parent */
+    }
+    
+    .highlight-red {
+        color: #E74C3C; /* Rouge plus doux */
+        font-weight: bold;
+    }
+    
+    .highlight-green {
+        color: #27AE60; /* Vert plus doux */
+        font-weight: bold;
+    }
+    
+    /* Animations */
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+    
+    .float-animation {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .shake-animation {
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-5px); }
+        40%, 80% { transform: translateX(5px); }
+    }
+    
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+</style>
+    </article>
+  </main>
+
+  <script src="/static/assets/js/script.js"></script>
+
+  <!-- 
+    - ionicon link
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
 </body>
+
 </html>
+
+
 

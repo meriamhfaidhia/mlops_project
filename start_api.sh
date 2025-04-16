@@ -1,16 +1,16 @@
 #!/bin/bash
 
-set -e  # Stop the script in case of an error
+set -e  # Arrêter le script en cas d'erreur
 
-# Define the project directory
+# Définir le dossier du projet
 PROJECT_DIR="/home/meriam/meriam-hfaidhia-4DS4-mlops_project"
 
 cd "$PROJECT_DIR"
 
-# Activate the virtual environment
+# Activer l'environnement virtuel
 . venv/bin/activate
 
-# Check if a process is already running
+# Vérifier si un processus tourne déjà
 if [ -f uvicorn_pid.txt ]; then
     PID=$(cat uvicorn_pid.txt)
     if ps -p $PID > /dev/null; then
@@ -19,11 +19,9 @@ if [ -f uvicorn_pid.txt ]; then
     fi
 fi
 
-# Launch FastAPI with nohup and save the PID
-nohup uvicorn app:app --host 0.0.0.0 --port 8000 --reload > uvicorn.log 2>&1& 
-echo $! > uvicorn_pid.txt
+# Lancer FastAPI avec nohup et sauvegarder le PID
+uvicorn app:app --host 0.0.0.0 --port 8000 --reload > uvicorn.log 2>&1&
 
-# Output the success message
 echo "🚀 API démarrée avec succès. PID: $(cat uvicorn_pid.txt)"
 echo "🌐 Accédez à Swagger : http://192.168.93.6:8000/docs"
 

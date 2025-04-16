@@ -1,50 +1,792 @@
-<h2>Churn Prediction - Entrez les données</h2>
-<form action="/predict" method="POST">
-    <label for="account_length">Account Length (numérique):</label>
-    <input type="number" id="account_length" name="account_length" required><br><br>
+<!DOCTYPE html>
+<html lang="en">
 
-    <label for="number_vmail_messages">Number of Voice Mail Messages (numérique):</label>
-    <input type="number" id="number_vmail_messages" name="number_vmail_messages" required><br><br>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <label for="total_day_calls">Total Day Calls (numérique):</label>
-    <input type="number" id="total_day_calls" name="total_day_calls" required><br><br>
+  <!-- 
+    - primary meta tags
+  -->
+  <title>Churn Prediction</title>
+  <meta name="title" content="">
+  <meta name="description" content="">
+  
 
-    <label for="total_day_charge">Total Day Charge (numérique):</label>
-    <input type="number" id="total_day_charge" name="total_day_charge" required><br><br>
+  <!-- 
+    - google font link
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
 
-    <label for="total_eve_calls">Total Evening Calls (numérique):</label>
-    <input type="number" id="total_eve_calls" name="total_eve_calls" required><br><br>
+  <!-- 
+    - custom css link
+  -->
+  <link rel="stylesheet" href="/static/assets/css/style.css">
 
-    <label for="total_eve_charge">Total Evening Charge (numérique):</label>
-    <input type="number" id="total_eve_charge" name="total_eve_charge" required><br><br>
+  <!-- 
+    - preload images
+  -->
+  <link rel="preload" as="image" href="/static/assets/images/IA-vs-IAgen.jpg">
+  <link rel="preload" as="image" href="/static/assets/images/AI-that-can-predict-the-future-1.png">
+  <link rel="preload" as="image" href="/static/assets/images/images.jpg">
 
-    <label for="total_night_calls">Total Night Calls (numérique):</label>
-    <input type="number" id="total_night_calls" name="total_night_calls" required><br><br>
+</head>
 
-    <label for="total_night_charge">Total Night Charge (numérique):</label>
-    <input type="number" id="total_night_charge" name="total_night_charge" required><br><br>
+<body id="top">
 
-    <label for="total_intl_calls">Total International Calls (numérique):</label>
-    <input type="number" id="total_intl_calls" name="total_intl_calls" required><br><br>
+  <!-- 
+    - #PRELOADER
+  -->
 
-    <label for="total_intl_charge">Total International Charge (numérique):</label>
-    <input type="number" id="total_intl_charge" name="total_intl_charge" required><br><br>
+  <div class="preload" data-preaload>
+    <div class="circle"></div>
+    <p class="text">Churn</p>
+  </div>
 
-    <label for="customer_service_calls">Customer Service Calls (numérique):</label>
-    <input type="number" id="customer_service_calls" name="customer_service_calls" required><br><br>
 
-    <label for="international_plan">International Plan (catégorique, 0 ou 1):</label>
-    <select id="international_plan" name="international_plan" required>
-        <option value="0">Non</option>
-        <option value="1">Oui</option>
-    </select><br><br>
 
-    <label for="voice_mail_plan">Voice Mail Plan (catégorique, 0 ou 1):</label>
-    <select id="voice_mail_plan" name="voice_mail_plan" required>
-        <option value="0">Non</option>
-        <option value="1">Oui</option>
-    </select><br><br>
 
-    <input type="submit" value="Prédire le Churn">
-</form>
 
+  <!-- 
+    - #TOP BAR
+  -->
+
+  <div class="topbar">
+    
+  </div>
+
+
+
+
+
+  <!-- 
+    - #HEADER
+  -->
+
+  <header class="header" data-header>
+    <div class="container">
+
+      <a href="#" class="logo">
+      </a>
+
+      <nav class="navbar" data-navbar>
+
+        <button class="close-btn" aria-label="close menu" data-nav-toggler>
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+
+        <a href="#" class="logo">
+          <img src="/static/assets/images/logo.svg" width="160" height="50" alt="Grilli - Home">
+        </a>
+
+        <ul class="navbar-list">
+
+          <li class="navbar-item">
+            <a href="#home" class="navbar-link hover-underline active">
+              <div class="separator"></div>
+
+              <span class="span">Home</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="#menu" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span"></span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="#about" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">About Us</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="#" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span"></span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="#" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Contact</span>
+            </a>
+          </li>
+
+        </ul>
+
+        <div class="text-center">
+          <p class="headline-1 navbar-title">Visit Us</p>
+
+          <address class="body-4">
+            Restaurant St, Delicious City, <br>
+            London 9578, UK
+          </address>
+
+          <p class="body-4 navbar-text">Open: 9.30 am - 2.30pm</p>
+
+          <a href="mailto:booking@grilli.com" class="body-4 sidebar-link">booking@grilli.com</a>
+
+          <div class="separator"></div>
+
+          <p class="contact-label">Booking Request</p>
+
+          <a href="tel:+88123123456" class="body-1 contact-number hover-underline">
+            +88-123-123456
+          </a>
+        </div>
+
+      </nav>
+
+      <a href="#" class="btn btn-secondary">
+        <span class="text text-1">Predict Now</span>
+
+        <span class="text text-2" aria-hidden="true">Predict Now </span>
+      </a>
+
+      <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
+        <span class="line line-1"></span>
+        <span class="line line-2"></span>
+        <span class="line line-3"></span>
+      </button>
+
+      <div class="overlay" data-nav-toggler data-overlay></div>
+
+    </div>
+  </header>
+
+
+
+
+
+  <main>
+    <article>
+
+      <!-- 
+        - #HERO
+      -->
+
+      <section class="hero text-center" aria-label="home" id="home">
+
+        <ul class="hero-slider" data-hero-slider>
+
+          <li class="slider-item active" data-hero-slider-item>
+
+            <div class="slider-bg">
+              <img src="/static/assets/images/IA-vs-IAgen.jpg" width="1880" height="950" alt="" class="img-cover">
+            </div>
+
+            <p class="label-2 section-subtitle slider-reveal">Analytics & Prediction</p>
+
+            <h1 class="display-1 hero-title slider-reveal">
+              Predict Customer <br>
+              Churn with AI
+            </h1>
+
+            <p class="body-2 hero-text slider-reveal">
+              Leverage the power of Machine Learning to anticipate churn and retain your telecom subscribers
+            </p>
+
+            <a href="#" class="btn btn-primary slider-reveal">
+              <span class="text text-1">Get Started</span>
+
+              <span class="text text-2" aria-hidden="true">Get Started</span>
+            </a>
+
+          </li>
+
+          <li class="slider-item" data-hero-slider-item>
+
+            <div class="slider-bg">
+              <img src="/static/assets/images/1686344029580.jpg" width="1880" height="950" alt="" class="img-cover">
+            </div>
+
+            <p class="label-2 section-subtitle slider-reveal">Smart Insights</p>
+
+            <h1 class="display-1 hero-title slider-reveal">
+              Data-Driven Decisions <br>
+              That Matter
+            </h1>
+
+            <p class="body-2 hero-text slider-reveal">
+              Understand customer behavior and predict churn before it happens with intelligent machine learning models
+            </p>
+
+            <a href="#" class="btn btn-primary slider-reveal">
+              <span class="text text-1">Get Started</span>
+
+              <span class="text text-2" aria-hidden="true">Get Started</span>
+            </a>
+
+          </li>
+
+          <li class="slider-item" data-hero-slider-item>
+
+            <div class="slider-bg">
+              <img src="/static/assets/images/AI-that-can-predict-the-future-1.png" width="1880" height="950" alt="" class="img-cover">
+            </div>
+
+            <p class="label-2 section-subtitle slider-reveal">AI-Powered Insights</p>
+
+            <h1 class="display-1 hero-title slider-reveal">
+              Where Every Data Point <br>
+              Tells a Story
+            </h1>
+
+            <p class="body-2 hero-text slider-reveal">
+              Unlock hidden patterns in customer behavior and make smarter decisions to reduce churn and boost retention
+            </p>
+
+            <a href="#" class="btn btn-primary slider-reveal">
+              <span class="text text-1">Get Started</span>
+
+              <span class="text text-2" aria-hidden="true">Get Started</span>
+            </a>
+
+          </li>
+
+        </ul>
+
+        <button class="slider-btn prev" aria-label="slide to previous" data-prev-btn>
+          <ion-icon name="chevron-back"></ion-icon>
+        </button>
+
+        <button class="slider-btn next" aria-label="slide to next" data-next-btn>
+          <ion-icon name="chevron-forward"></ion-icon>
+        </button>
+
+        <a href="#" class="hero-btn has-after">
+          <img src="/static/assets/images/910139.png" width="48" height="48" alt="booking icon">
+
+          <span class="label-2 text-center span">Get  Predictions</span>
+        </a>
+
+      </section>
+
+
+
+
+
+      <!-- 
+        - #SERVICE
+      -->
+
+      <section class="section service bg-black-10 text-center" aria-label="service">
+        <div class="container">
+
+          <p class="section-subtitle label-2">AI-Powered Insights</p>
+
+          <h2 class="headline-1 section-title">Our Model's Impact</h2>
+
+          <p class="section-text">
+            Our churn prediction model leverages machine learning to give you valuable insights, empowering businesses to
+      reduce churn and improve customer retention strategies. Here’s a snapshot of how our model performs:
+          </p>
+
+          <ul class="grid-list">
+
+            <li>
+              <div class="service-card">
+
+                <a href="#" class="has-before hover:shine">
+                  <figure class="card-banner img-holder" style="--width: 285; --height: 336;">
+                    <img src="/static/assets/images/Capture d’écran 2025-04-15 152714.png" width="200" height="300" loading="lazy" alt="Breakfast"
+                      class="img-cover">
+                  </figure>
+                </a>
+
+                <div class="card-content">
+
+                  <h3 class="title-4 card-title">
+                    <a href="#">Model Accuracy</a>
+                  </h3>
+
+                  <a href="#" class="btn-text hover-underline label-2">Learn More</a>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li>
+              <div class="service-card">
+
+                <a href="#" class="has-before hover:shine">
+                  <figure class="card-banner img-holder" style="--width: 285; --height: 336;">
+                    <img src="/static/assets/images/pr.png" width="285" height="336" loading="lazy" alt="Appetizers"
+                      class="img-cover">
+                  </figure>
+                </a>
+
+                <div class="card-content">
+
+                  <h3 class="title-4 card-title">
+                    <a href="#">Precision</a>
+                  </h3>
+
+                  <a href="#" class="btn-text hover-underline label-2">Learn More</a>
+
+                </div>
+
+              </div>
+            </li>
+
+            <li>
+              <div class="service-card">
+
+                <a href="#" class="has-before hover:shine">
+                  <figure class="card-banner img-holder" style="--width: 285; --height: 336;">
+                    <img src="/static/assets/images/REC.png" width="285" height="336" loading="lazy" alt="Drinks"
+                      class="img-cover">
+                  </figure>
+                </a>
+
+                <div class="card-content">
+
+                  <h3 class="title-4 card-title">
+                    <a href="#">Recall</a>
+                  </h3>
+
+                  <a href="#" class="btn-text hover-underline label-2">Learn More</a>
+
+                </div>
+
+              </div>
+            </li>
+
+          </ul>
+
+          <img src="/static/assets/images/shape-1.png" width="246" height="412" loading="lazy" alt="shape"
+            class="shape shape-1 move-anim">
+          <img src="/static/assets/images/shape-2.png" width="343" height="345" loading="lazy" alt="shape"
+            class="shape shape-2 move-anim">
+
+        </div>
+      </section>
+
+
+
+
+
+      
+
+
+
+
+
+      <!-- 
+        - #SPECIAL DISH
+      -->
+
+      <section class="special-dish text-center" aria-labelledby="dish-label">
+
+        <div class="special-dish-banner">
+          <img src="/static/assets/images/ia_personnalité.jpeg" width="940" height="900" loading="lazy" alt="special dish"
+            class="img-cover">
+        </div>
+
+        <div class="special-dish-content bg-black-10">
+          <div class="container">
+
+            <img src="/static/assets/images/cute-robot-working-on-a-laptop-3d-render-technology-concept-ai-generated-free-photo-removebg-preview.png" width="500" height="300" loading="lazy" alt="badge" class="abs-img">
+
+            
+
+            <h2 class="headline-1 section-title"></h2>
+
+            
+
+           
+
+            <a href="/dashboards" class="dashboard-btn">
+              <span class="btn-content">
+                <span class="btn-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v18h18"></path>
+                    <rect x="7" y="15" width="4" height="4"></rect>
+                    <rect x="13" y="7" width="4" height="4"></rect>
+                    <rect x="7" y="7" width="4" height="4"></rect>
+                  </svg>
+                </span>
+                <span class="btn-text">
+                  <span class="text text-1">View Dashboards</span>
+                </span>
+              </span>
+              <span class="btn-particles">
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+              </span>
+            </a>
+            
+            <style>
+              .dashboard-btn {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 12px 24px;
+                border-radius: 50px;
+                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+                color: white;
+                font-weight: 600;
+                text-decoration: none;
+                overflow: hidden;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+                border: none;
+                cursor: pointer;
+              }
+              
+              .dashboard-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+                background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 120%);
+              }
+              
+              .dashboard-btn:active {
+                transform: translateY(1px);
+              }
+              
+              .btn-content {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                position: relative;
+                z-index: 2;
+              }
+              
+              .btn-icon {
+                display: flex;
+                transition: transform 0.3s ease;
+              }
+              
+              .dashboard-btn:hover .btn-icon {
+                transform: rotate(15deg);
+              }
+              
+              .btn-text {
+                position: relative;
+                overflow: hidden;
+              }
+              
+              .btn-particles {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                pointer-events: none;
+              }
+              
+              .particle {
+                position: absolute;
+                background-color: rgba(255, 255, 255, 0.5);
+                border-radius: 50%;
+                animation: float-up 2s infinite ease-in-out;
+              }
+              
+              .particle:nth-child(1) {
+                width: 5px;
+                height: 5px;
+                left: 15%;
+                top: 80%;
+                animation-delay: 0s;
+              }
+              
+              .particle:nth-child(2) {
+                width: 3px;
+                height: 3px;
+                left: 45%;
+                top: 70%;
+                animation-delay: 0.5s;
+              }
+              
+              .particle:nth-child(3) {
+                width: 4px;
+                height: 4px;
+                left: 75%;
+                top: 85%;
+                animation-delay: 1s;
+              }
+              
+              .particle:nth-child(4) {
+                width: 6px;
+                height: 6px;
+                left: 30%;
+                top: 90%;
+                animation-delay: 1.5s;
+              }
+              
+              @keyframes float-up {
+                0% {
+                  transform: translateY(0) scale(1);
+                  opacity: 1;
+                }
+                100% {
+                  transform: translateY(-50px) scale(0.5);
+                  opacity: 0;
+                }
+              }
+            </style>
+
+          </div>
+        </div>
+
+        <img src="/static/assets/images/shape-4.png" width="179" height="359" loading="lazy" alt="" class="shape shape-1">
+
+        <img src="/static/assets/images/shape-9.png" width="351" height="462" loading="lazy" alt="" class="shape shape-2">
+
+      </section>
+
+
+
+
+
+      <!-- 
+        - #MENU
+      -->
+
+      
+
+
+
+
+
+      <!-- 
+        - #TESTIMONIALS
+      -->
+
+      <section class="section testi text-center has-bg-image"
+        style="background-image: url('/static/assets/images/IA-technologie.jpeg')" aria-label="testimonials">
+        <div class="container">
+
+          <div class="quote">”</div>
+
+          <p class="headline-2 testi-text">
+            "Machine learning is the most powerful tool we have for making sense of the vast amounts of data we now generate." – Fei-Fei Li
+          </p>
+
+          <div class="wrapper">
+            <div class="separator"></div>
+            <div class="separator"></div>
+            <div class="separator"></div>
+          </div>
+
+         
+
+        </div>
+      </section>
+
+
+
+
+
+      <!-- 
+        - #RESERVATION
+      -->
+
+      <section class="Prediction form">
+        <div class="container">
+
+          <div class="form reservation-form bg-black-10">
+
+            <form action="/predict" class="form-left"  method="POST">
+
+              <h2 class="headline-1 text-center">Prediction Form</h2>
+
+              <p class="form-text text-center">
+                Fill out the form below to get your prediction
+              </p>
+
+             
+
+              <div class="input-wrapper">
+
+                <div class="icon-wrapper">
+                  <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
+                  <input type="number" name="Account_length" class="input-field" placeholder="Account Length" step="any" autocomplete="off">
+                </div>
+              
+                <div class="icon-wrapper">
+                  <ion-icon name="globe-outline" aria-hidden="true"></ion-icon>
+                  <select name="International_plan" class="input-field">
+                    <option value="">International Plan?</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+              
+                <div class="icon-wrapper">
+                  <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+                  <select name="Voice_mail_plan" class="input-field">
+                    <option value="">Voicemail Plan?</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+              
+                <div class="icon-wrapper">
+                  <ion-icon name="chatbox-ellipses-outline" aria-hidden="true"></ion-icon>
+                  <input type="number" name="Number_vmail_messages" class="input-field" placeholder="Number of Voicemail Messages" step="any">
+                </div>
+              
+                <div class="icon-wrapper">
+                  <ion-icon name="sunny-outline" aria-hidden="true"></ion-icon>
+                  <input type="text" name="Total_day_minutes" class="input-field" placeholder="Total Day Minutes (e.g., 123.45)">
+                </div>
+              
+                <div class="icon-wrapper">
+                  <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+                  <input type="number" name="Total_day_calls" class="input-field" placeholder="Total Day Calls" step="any">
+                </div>
+              
+                <div class="icon-wrapper">
+                  <ion-icon name="moon-outline" aria-hidden="true"></ion-icon>
+                  <input type="text" name="Total_eve_minutes" class="input-field" placeholder="Total Evening Minutes (e.g., 123.45)">
+                </div>
+                <div class="icon-wrapper">
+                  <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+                  <input type="number" name="Total_eve_calls" class="input-field" placeholder="Total Evening Calls" step="any" autocomplete="off">
+                </div>
+              
+                <div class="icon-wrapper">
+                  <ion-icon name="moon-outline" aria-hidden="true"></ion-icon>
+                  <input type="text" name="Total_night_minutes" class="input-field" placeholder="Total Night Minutes" autocomplete="off">
+                </div>
+                <div class="icon-wrapper">
+                  <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+                  <input type="number" name="Total_night_calls" class="input-field" placeholder="Total Night Calls" step="any" autocomplete="off">
+                </div>
+              
+                <div class="icon-wrapper">
+                  <ion-icon name="earth-outline" aria-hidden="true"></ion-icon>
+                  <input type="text" name="Total_intl_minutes" class="input-field" placeholder="Total International Minutes" autocomplete="off">
+                </div>
+                <div class="icon-wrapper">
+                  <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+                  <input type="number" name="Total_intl_calls" class="input-field" placeholder="Total International Calls" step="any" autocomplete="off">
+                </div>
+              
+                <div class="icon-wrapper">
+                  <ion-icon name="help-circle-outline" aria-hidden="true"></ion-icon>
+                  <input type="number" name="Customer_service_calls" class="input-field" placeholder="Customer Service Calls" step="any" autocomplete="off">
+                </div>
+              
+              </div>
+              
+
+              <button type="submit" class="btn btn-secondary">
+                <span class="text text-1">Predict Now</span>
+
+                <span class="text text-2" aria-hidden="true">Predict Now</span>
+              </button>
+
+            </form>
+
+            <div class="form-right text-center" style="background-image: url('./assets/images/form-pattern.png')">
+
+              <h2 class="headline-1 text-center"></h2>
+
+              <p class="contact-label"></p>
+
+              <a href="tel:+88123123456" class="body-1 contact-number hover-underline"></a>
+
+              <div class="separator"></div>
+
+              <p class="contact-label"></p>
+
+              <address class="body-4">
+                 <br>
+                
+              </address>
+
+              <p class="contact-label"></p>
+
+              <p class="body-4">
+                <br>
+                
+              </p>
+
+              <p class="contact-label"></p>
+
+              <p class="body-4">
+                 <br>
+               
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+
+
+
+
+     
+
+     
+
+
+
+
+
+
+     
+    </article>
+  </main>
+
+
+
+
+
+ 
+
+  <footer class="footer section has-bg-image text-center"></footer>
+   
+
+
+
+
+
+  <!-- 
+    - #BACK TO TOP
+  -->
+
+  <a href="#top" class="back-top-btn active" aria-label="back to top" data-back-top-btn>
+    <ion-icon name="chevron-up" aria-hidden="true"></ion-icon>
+  </a>
+
+
+
+
+
+  <!-- 
+    - custom js link
+  -->
+  <script src="/static/assets/js/script.js"></script>
+
+  <!-- 
+    - ionicon link
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</body>
+
+</html>
